@@ -28,7 +28,8 @@ export function warnMockOnce(reason: string) {
   console.info(`[shapeshift] Offline classifier (jev-offline): ${reason}. Add a TypeSafe key to .env.local to go online.`);
 }
 
-function getClient() {
+/** One client for every Jev call the server makes, built on first use. */
+export function getClient() {
   if (!client) {
     client = new TypeSafeClient({
       defaultModel: process.env.JEV_MODEL || "jev-latest",
