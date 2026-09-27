@@ -1,4 +1,5 @@
 import "server-only";
+import { isIP } from "node:net";
 import { APIUserAbortError, TypeSafeClient } from "@typesafe-ai/sdk";
 import { questions, QUESTION_COUNT } from "./questions";
 import type { Answer, IntentResult } from "./types";
@@ -28,9 +29,44 @@ export function warnMockOnce(reason: string) {
   console.info(`[shapeshift] Offline classifier (jev-offline): ${reason}. Add a TypeSafe key to .env.local to go online.`);
 }
 
+/** Validate an optional Jev-compatible API root before attaching the API key. */
+export function resolveBaseURL(value: string | undefined): string | undefined {
+  const baseURL = value?.trim();
+  if (!baseURL) return undefined;
+
+  let url: URL;
+  try {
+    url = new URL(baseURL);
+  } catch {
+    throw new Error("TYPESAFE_BASE_URL must be an absolute HTTP or HTTPS URL.");
+  }
+
+  const hostname = url.hostname
+    .replace(/^\[|\]$/g, "")
+    .toLowerCase()
+    .replace(/\.$/, "");
+  const isLoopbackHost =
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    (isIP(hostname) === 4 && Number(hostname.split(".")[0]) === 127) ||
+    (isIP(hostname) === 6 && hostname === "::1");
+
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && isLoopbackHost)) {
+    throw new Error("TYPESAFE_BASE_URL must use HTTPS except for loopback hosts.");
+  }
+
+  return baseURL;
+}
+
+/** Initialize and cache the TypeSafe client with the configured server. */
 function getClient() {
   if (!client) {
     client = new TypeSafeClient({
+      // The SDK defaults to TypeSafe's hosted API, but also supports any
+      // Jev-compatible endpoint (for example, a local Laya server).
+      baseURL: resolveBaseURL(process.env.TYPESAFE_BASE_URL),
+      // A remote endpoint must not redirect classification text to another origin.
+      fetch: (input, init) => globalThis.fetch(input, { ...init, redirect: "error" }),
       defaultModel: process.env.JEV_MODEL || "jev-latest",
       // One fast attempt: a stale answer is worse than falling back to the mock.
       retry: { maxRetries: 0 },

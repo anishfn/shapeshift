@@ -41,9 +41,37 @@ cp .env.example .env.local
 
 Restart `bun dev`. The latency readout in the bottom-right corner switches from `jev-offline` to `jev-1.13.0`. The key is only ever read on the server (`/api/intent`); it never reaches the browser. If the API is unreachable or rate-limited, Shapeshift quietly falls back to offline mode.
 
+### Use a Jev-compatible open model
+
+The TypeSafe SDK can also send the same `/v1/systemone` requests to a compatible
+server, including [Laya](https://github.com/NandhaKishorM/laya). Start Laya's
+HTTP server in one terminal (its first run downloads the model checkpoint):
+
+```bash
+pip install 'laya[serve]'
+LAYA_HOST=127.0.0.1 LAYA_PORT=8000 laya-serve
+```
+
+In `.env.local`, keep the URL at the API root, without `/v1/systemone`:
+
+```dotenv
+TYPESAFE_API_KEY=local-shapeshift-development-token
+TYPESAFE_BASE_URL=http://127.0.0.1:8000
+JEV_MODEL=jev-latest
+```
+
+The API key is required by the SDK even if the local server does not enforce
+authentication. If you set `LAYA_API_KEY`, use the same value for
+`TYPESAFE_API_KEY`. Shapeshift sends that bearer token to the configured URL,
+so only set `TYPESAFE_BASE_URL` to a server you trust. HTTPS is required for
+remote endpoints; plain HTTP is accepted only for loopback addresses such as
+`localhost`, `127.0.0.1`, and `::1`. The existing offline fallback still applies
+if the server is unavailable.
+
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `TYPESAFE_API_KEY` | _(empty)_ | Enables the online model. Empty or placeholder values keep you offline. |
+| `TYPESAFE_BASE_URL` | TypeSafe hosted API | Optional API root for a Jev-compatible server such as Laya. |
 | `JEV_MODEL` | `jev-1.13.0` | Pinned model version. |
 | `NEXT_PUBLIC_USE_MOCK` | `false` | `true` forces offline even with a key. |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Used for Open Graph metadata. |
