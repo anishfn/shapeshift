@@ -59,6 +59,7 @@ describe("Jev-compatible endpoint configuration", () => {
 
     let requestUrl = "";
     let authorization = "";
+    let redirectMode: RequestRedirect | undefined;
     let requestBody: {
       model?: string;
       state?: unknown;
@@ -67,6 +68,7 @@ describe("Jev-compatible endpoint configuration", () => {
     const fakeFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       requestUrl = String(input);
       authorization = new Headers(init?.headers).get("authorization") ?? "";
+      redirectMode = init?.redirect;
       requestBody = JSON.parse(String(init?.body));
 
       const answers = Object.fromEntries(
@@ -109,6 +111,7 @@ describe("Jev-compatible endpoint configuration", () => {
 
     expect(requestUrl).toBe("http://127.0.0.1:8000/v1/systemone");
     expect(authorization).toBe("Bearer local-shapeshift-development-token");
+    expect(redirectMode).toBe("error");
     expect(requestBody.model).toBe("jev-latest");
     expect(requestBody.state).toEqual({ text: "buy milk and eggs" });
     expect(Object.keys(requestBody.questions ?? {})).toHaveLength(14);

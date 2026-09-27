@@ -29,6 +29,7 @@ export function warnMockOnce(reason: string) {
   console.info(`[shapeshift] Offline classifier (jev-offline): ${reason}. Add a TypeSafe key to .env.local to go online.`);
 }
 
+/** Validate an optional Jev-compatible API root before attaching the API key. */
 export function resolveBaseURL(value: string | undefined): string | undefined {
   const baseURL = value?.trim();
   if (!baseURL) return undefined;
@@ -57,12 +58,15 @@ export function resolveBaseURL(value: string | undefined): string | undefined {
   return baseURL;
 }
 
+/** Initialize and cache the TypeSafe client with the configured server. */
 function getClient() {
   if (!client) {
     client = new TypeSafeClient({
       // The SDK defaults to TypeSafe's hosted API, but also supports any
       // Jev-compatible endpoint (for example, a local Laya server).
       baseURL: resolveBaseURL(process.env.TYPESAFE_BASE_URL),
+      // A remote endpoint must not redirect classification text to another origin.
+      fetch: (input, init) => globalThis.fetch(input, { ...init, redirect: "error" }),
       defaultModel: process.env.JEV_MODEL || "jev-latest",
       // One fast attempt: a stale answer is worse than falling back to the mock.
       retry: { maxRetries: 0 },
