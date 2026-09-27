@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 mock.module("server-only", () => ({}));
-const { classifyWithJev, looksLikeKey } = await import("@/lib/jev/client");
+const { classifyWithJev, looksLikeKey, resolveBaseURL } = await import("@/lib/jev/client");
 
 const originalFetch = globalThis.fetch;
 const originalApiKey = process.env.TYPESAFE_API_KEY;
@@ -28,6 +28,27 @@ describe("API key detection", () => {
   });
   test("a real-looking key → online", () => {
     expect(looksLikeKey("sk-live-8f2c1a9b7d6e5f40")).toBe(true);
+  });
+});
+
+describe("Jev-compatible endpoint URL validation", () => {
+  test("keeps the hosted API default when unset or blank", () => {
+    expect(resolveBaseURL(undefined)).toBeUndefined();
+    expect(resolveBaseURL("  ")).toBeUndefined();
+  });
+
+  test("accepts HTTPS endpoints and HTTP loopback servers", () => {
+    expect(resolveBaseURL("https://laya.example.com/api/")).toBe("https://laya.example.com/api/");
+    expect(resolveBaseURL("http://localhost:8000")).toBe("http://localhost:8000");
+    expect(resolveBaseURL("http://127.4.5.6:8000")).toBe("http://127.4.5.6:8000");
+    expect(resolveBaseURL("http://[::1]:8000")).toBe("http://[::1]:8000");
+  });
+
+  test("rejects non-loopback HTTP and non-HTTP protocols", () => {
+    expect(() => resolveBaseURL("http://laya.example.com")).toThrow("must use HTTPS");
+    expect(() => resolveBaseURL("http://192.168.1.8:8000")).toThrow("must use HTTPS");
+    expect(() => resolveBaseURL("ftp://laya.example.com")).toThrow("must use HTTPS");
+    expect(() => resolveBaseURL("not a URL")).toThrow("absolute HTTP or HTTPS URL");
   });
 });
 

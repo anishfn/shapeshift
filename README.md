@@ -63,8 +63,10 @@ JEV_MODEL=jev-latest
 The API key is required by the SDK even if the local server does not enforce
 authentication. If you set `LAYA_API_KEY`, use the same value for
 `TYPESAFE_API_KEY`. Shapeshift sends that bearer token to the configured URL,
-so only set `TYPESAFE_BASE_URL` to a server you trust. The existing offline
-fallback still applies if the server is unavailable.
+so only set `TYPESAFE_BASE_URL` to a server you trust. HTTPS is required for
+remote endpoints; plain HTTP is accepted only for loopback addresses such as
+`localhost`, `127.0.0.1`, and `::1`. The existing offline fallback still applies
+if the server is unavailable.
 
 | Variable | Default | What it does |
 | --- | --- | --- |
