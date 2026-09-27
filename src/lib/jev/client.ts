@@ -31,6 +31,9 @@ export function warnMockOnce(reason: string) {
 function getClient() {
   if (!client) {
     client = new TypeSafeClient({
+      // The SDK defaults to TypeSafe's hosted API, but also supports any
+      // Jev-compatible endpoint (for example, a local Laya server).
+      baseURL: process.env.TYPESAFE_BASE_URL?.trim() || undefined,
       defaultModel: process.env.JEV_MODEL || "jev-latest",
       // One fast attempt: a stale answer is worse than falling back to the mock.
       retry: { maxRetries: 0 },
