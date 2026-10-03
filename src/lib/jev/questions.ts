@@ -20,6 +20,7 @@ export const questions = {
     split: "Dividing an amount of money between several people",
     expense: "Recording money they spent on something",
     convert: "Converting a value from one unit of measurement to another",
+    currency: "Converting an amount of money from one currency to another, e.g. dollars to rupees",
     calc: "A math calculation or percentage that is not splitting money or converting units",
     travel: "Planning a trip, flight, train or stay to a destination",
     poll: "Asking a group to choose between options",

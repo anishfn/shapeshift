@@ -3,6 +3,7 @@ import { completeCalc, parseCalc, type CalcData } from "./calc";
 import { completeColor, parseColor, type ColorData } from "./color";
 import { completeContact, parseContact, type ContactData } from "./contact";
 import { completeConvert, parseConvert, type ConvertData } from "./convert";
+import { completeCurrency, parseCurrency, type CurrencyData } from "./currency";
 import { completeEvent, parseEvent, type EventData } from "./event";
 import { completeExpense, parseExpense, type ExpenseData } from "./expense";
 import { completeHabit, parseHabit, type HabitData } from "./habit";
@@ -29,6 +30,7 @@ export type ParsedMap = {
   split: SplitData;
   expense: ExpenseData;
   convert: ConvertData;
+  currency: CurrencyData;
   calc: CalcData;
   travel: TravelData;
   poll: PollData;
@@ -58,6 +60,7 @@ export const parsers: { [K in CardIntent]: Parser<K> } = {
   split: { parse: (t) => parseSplit(t), complete: completeSplit },
   expense: { parse: (t) => parseExpense(t), complete: completeExpense },
   convert: { parse: (t) => parseConvert(t), complete: completeConvert },
+  currency: { parse: (t) => parseCurrency(t), complete: completeCurrency },
   calc: { parse: (t) => parseCalc(t), complete: completeCalc },
   travel: { parse: (t, c) => parseTravel(t, c.ref), complete: completeTravel },
   poll: { parse: (t) => parsePoll(t), complete: completePoll },

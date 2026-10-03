@@ -8,6 +8,7 @@ import { parseColor } from "@/lib/parse/color";
 import { parseSplit } from "@/lib/parse/split";
 import { parseExpense } from "@/lib/parse/expense";
 import { parseConvert } from "@/lib/parse/convert";
+import { parseCurrency } from "@/lib/parse/currency";
 import { evaluate, parseCalc } from "@/lib/parse/calc";
 import { parseTravel } from "@/lib/parse/travel";
 import { parsePoll } from "@/lib/parse/poll";
@@ -172,6 +173,19 @@ describe("convert", () => {
   test("partial with default target", () => expect(parseConvert("100 km").to).toBe("mi"));
   test("degrees phrasing", () => expect(parseConvert("30 degrees c in f").result).toBeCloseTo(86, 1));
   test("nothing", () => expect(parseConvert("hello").value).toBeNull());
+});
+
+describe("currency", () => {
+  test("100 usd to inr", () => expect(parseCurrency("100 usd to inr")).toEqual({ value: 100, from: "USD", to: "INR" }));
+  test("symbol prefix", () => expect(parseCurrency("$50 to eur")).toEqual({ value: 50, from: "USD", to: "EUR" }));
+  test("convert phrasing", () => expect(parseCurrency("convert 200 euros to pounds")).toEqual({ value: 200, from: "EUR", to: "GBP" }));
+  test("commas", () => expect(parseCurrency("1,250 gbp in usd").value).toBe(1250));
+  test("partial with default target", () => expect(parseCurrency("100 usd").to).toBe("INR"));
+  test("inr defaults to usd", () => expect(parseCurrency("500 rupees").to).toBe("USD"));
+  test("adjectives and singular forms don't break it", () =>
+    expect(parseCurrency("100 indian rupee to US dollars")).toEqual({ value: 100, from: "INR", to: "USD" }));
+  test("no connector word", () => expect(parseCurrency("100 rupees dollars")).toEqual({ value: 100, from: "INR", to: "USD" }));
+  test("nothing", () => expect(parseCurrency("hello").value).toBeNull());
 });
 
 describe("calc", () => {

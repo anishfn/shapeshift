@@ -1,5 +1,6 @@
 import {
   AlarmClock,
+  Banknote,
   CalendarClock,
   Dices,
   Globe,
@@ -40,6 +41,7 @@ import { TimezoneCard } from "./TimezoneCard";
 import { ColorPicker } from "./ColorPicker";
 import { ContactCard } from "./ContactCard";
 import { ConvertCard } from "./ConvertCard";
+import { CurrencyCard } from "./CurrencyCard";
 import { EventCard } from "./EventCard";
 import { ExpenseRow } from "./ExpenseRow";
 import { HabitCard } from "./HabitCard";
@@ -163,6 +165,14 @@ export const registry: Registry = {
         ? `${d.value} ${UNIT_LABELS[d.from] ?? d.from} = ${Number(d.result.toFixed(2))} ${UNIT_LABELS[d.to] ?? d.to}`
         : "Conversion",
     Component: ConvertCard,
+  },
+  currency: {
+    label: "Currency",
+    example: "100 usd to inr",
+    icon: Banknote,
+    signals: [],
+    summary: (d) => (d.value !== null && d.from && d.to ? `${d.value} ${d.from} → ${d.to}` : "Currency exchange"),
+    Component: CurrencyCard,
   },
   calc: {
     label: "Calculate",

@@ -61,6 +61,7 @@ Restart `bun dev`. The latency readout in the bottom-right corner switches from 
 | Split | `split 2400 between 3` |
 | Expense | `spent 450 on uber` |
 | Convert | `5 miles in km`, `72f to c` |
+| Currency | `100 usd to inr`, `convert 200 euros to pounds` |
 | Calculate | `18% of 3450` |
 | Trip | `flight to goa next weekend` |
 | Poll | `pizza or burgers for friday?` |

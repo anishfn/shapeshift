@@ -1,5 +1,6 @@
 import { completenessFor } from "@/lib/parse";
 import { REFERENCE_RE } from "@/lib/parse/color";
+import { CURRENCY_ALIASES } from "@/lib/parse/currency";
 import { ZONES } from "@/lib/parse/timezone";
 import {
   type Answer,
@@ -29,6 +30,9 @@ const GATHER = /\b(dinner|lunch|breakfast|brunch|coffee|meeting|meet|call|sync|s
 const UNIT = "(km|kms|kilomet(er|re)s?|mi|miles?|m|met(er|re)s?|cm|mm|ft|feet|foot|in|inch(es)?|yd|yards?|kg|kgs|kilos?|g|grams?|lbs?|pounds?|oz|ounces?|l|lit(er|re)s?|ml|gal(lons?)?|cups?|°?c|°?f|celsius|fahrenheit|kelvin|mph|kph|km/h)";
 const CONVERT_FULL = new RegExp(`\\d\\s*${UNIT}\\s+(to|in|into|as)\\s+${UNIT}\\b`);
 const CONVERT_PART = new RegExp(`\\d\\s*${UNIT}\\b`);
+const CURRENCY_CODE = Object.keys(CURRENCY_ALIASES).sort((a, b) => b.length - a.length).join("|");
+const CURRENCY_WORD_RE = new RegExp(`\\b(${CURRENCY_CODE})\\b`, "gi");
+const CURRENCY_SYMBOL_RE = /[$€£₹¥₩]/;
 const COLOR_WORDS = /\b(red|crimson|scarlet|maroon|burgundy|pink|rose|coral|salmon|peach|orange|tangerine|amber|gold|yellow|mustard|lemon|cream|beige|sand|tan|brown|chocolate|olive|lime|green|sage|mint|emerald|forest|teal|turquoise|cyan|sky|blue|navy|cobalt|indigo|violet|purple|lavender|lilac|magenta|plum|grey|gray|slate|charcoal|black|white|ivory)(ish)?\b/;
 
 /** "minecraft diamond", "tiffany blue", "ruby": specific references that only mean a color. */
@@ -64,6 +68,10 @@ function intentScores(raw: string): Scores {
   if (has(CONVERT_FULL, t)) add("convert", 7);
   else if (has(CONVERT_PART, t) && !has(/\b(min|mins|minutes?|hours?|hrs?|sec|secs?)\b/, t) && words.length <= 3) add("convert", 2);
   if (has(/\bconvert\b/, t)) add("convert", 3);
+  const currencyHits = (t.match(CURRENCY_WORD_RE) ?? []).length + (has(CURRENCY_SYMBOL_RE, t) ? 1 : 0);
+  if (num && currencyHits >= 2) add("currency", 7.5);
+  else if (num && currencyHits === 1) add("currency", 2);
+  if (has(/\b(exchange rate|currency)\b/, t) && currencyHits >= 1) add("currency", 3);
   if (has(/^[\d\s+\-*/x×÷^().,%]+$/, t) && has(/\d\s*[+\-*/x×÷^%]\s*[\d(]/, t)) add("calc", 7);
   if (has(/\d\s*%\s*(of|off)\b/, t)) add("calc", 6);
   if (has(/\b(what'?s|calculate|compute)\b.*\d/, t)) add("calc", 3);
@@ -107,6 +115,12 @@ function intentScores(raw: string): Scores {
   // Mutual exclusions mirror the criteria wording.
   if ((s.split ?? 0) >= 5) s.calc = Math.min(s.calc ?? 0, 1);
   if ((s.convert ?? 0) >= 7) s.calc = Math.min(s.calc ?? 0, 1);
+  if ((s.currency ?? 0) >= 7) {
+    s.convert = Math.min(s.convert ?? 0, 1);
+    s.expense = Math.min(s.expense ?? 0, 1);
+    s.split = Math.min(s.split ?? 0, 1);
+  }
+  if ((s.expense ?? 0) >= 5 || (s.split ?? 0) >= 5) s.currency = Math.min(s.currency ?? 0, 1);
   if ((s.reminder ?? 0) >= 6) {
     s.event = Math.min(s.event ?? 0, 2.5);
     s.habit = Math.min(s.habit ?? 0, 2);

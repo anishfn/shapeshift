@@ -10,6 +10,7 @@ export const INTENT_KEYS = [
   "split",
   "expense",
   "convert",
+  "currency",
   "calc",
   "travel",
   "poll",
