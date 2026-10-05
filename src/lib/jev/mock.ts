@@ -83,7 +83,7 @@ function intentScores(raw: string): Scores {
   if (zoneHits >= 2 && (has(CLOCK, t) || has(/\b(in|to)\b/, t))) add("timezone", 7);
   else if (zoneHits === 1 && (has(CLOCK, t) || has(/\btime\b/, t))) add("timezone", 5.5);
   // Random: dice, coins, "random number", "pick one"
-  if (has(/\b(roll|flip|toss)\b|\b\d*d\d+\b|\bcoin\b|\bdice\b|\bdie\b|\brandom\b|\b(pick|choose) (one|a random|for me)\b/, t)) add("random", 6.5);
+  if (has(/\b(roll|flip|toss)\b|\b\d*d\d+\b|\bcoins?\b|\bdice\b|\bdie\b|\brandom\b|\b(pick|choose) (one|a random|for me)\b/, t)) add("random", 6.5);
   // Goal: "4 of 12 books", "save 50000, saved 12000", "goal"
   if (has(/\b\d[\d,]*\s*(of|\/|out of)\s*\d[\d,]*\b/, t) && has(/[a-z]{3,}/, t)) add("goal", 4.5);
   if (has(/\b(goal|target)\b/, t)) add("goal", 3);
