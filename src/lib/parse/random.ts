@@ -9,7 +9,7 @@ const WORDS: Record<string, number> = { a: 1, an: 1, one: 1, two: 2, three: 3, f
 export function parseRandom(text: string): RandomData {
   const t = text.toLowerCase().trim();
 
-  if (/\b(coin|heads|tails|toss)\b/.test(t)) return { kind: "coin" };
+  if (/\b(coins?|heads|tails|toss)\b/.test(t)) return { kind: "coin" };
 
   const dnd = t.match(/\b(\d+)?d(\d+)\b/);
   if (dnd) return { kind: "dice", count: clamp(Number(dnd[1] ?? 1), 1, 10), sides: clamp(Number(dnd[2]), 2, 1000) };

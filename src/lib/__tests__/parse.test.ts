@@ -319,3 +319,9 @@ describe("goal", () => {
   test("money with k", () => expect(parseGoal("save 50k for a trip, saved 12k")).toMatchObject({ current: 12000, target: 50000 }));
   test("no target", () => expect(parseGoal("learn piano").target).toBeNull());
 });
+
+describe("regressions", () => {
+  test("plural 'coins' is a coin flip", () => {
+    expect(parseRandom("flip 3 coins").kind).toBe("coin");
+  });
+});
