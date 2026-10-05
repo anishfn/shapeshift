@@ -84,6 +84,8 @@ export function parseConvert(text: string): ConvertData {
     const to = UNIT_ALIASES[full[3]];
     const result = convertValue(value, from, to);
     if (result !== null) return { value, from, to, result };
+    // Units don't match (e.g. km to kg): keep the number and source unit, let the user pick a valid target.
+    return { value, from, to: null, result: null };
   }
   const part = t.match(PART_RE);
   if (part) {

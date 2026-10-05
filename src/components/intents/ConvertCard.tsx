@@ -67,7 +67,7 @@ export function ConvertCard({ data, interactive }: CardProps<ConvertData>) {
         {unitSelect(to, (v) => setUnits({ from, to: v }), "To unit")}
       </Field>
       <Meta className="sr-only">
-        {data.value} {from} is {result} {to}
+        {fmt(data.value)} {from} is {result === null ? "unknown" : fmt(result)} {to}
       </Meta>
     </div>
   );

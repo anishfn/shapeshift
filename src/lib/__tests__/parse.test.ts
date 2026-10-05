@@ -319,3 +319,10 @@ describe("goal", () => {
   test("money with k", () => expect(parseGoal("save 50k for a trip, saved 12k")).toMatchObject({ current: 12000, target: 50000 }));
   test("no target", () => expect(parseGoal("learn piano").target).toBeNull());
 });
+
+describe("regressions", () => {
+  test("mismatched units keep the source unit instead of guessing a target", () => {
+    const d = parseConvert("10 km in kg");
+    expect(d).toEqual({ value: 10, from: "km", to: null, result: null });
+  });
+});
